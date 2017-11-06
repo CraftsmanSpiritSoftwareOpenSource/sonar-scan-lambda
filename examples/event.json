@@ -1,0 +1,44 @@
+{
+  "CodePipeline.job": {
+    "id": "10a89910-ef83-473e-a3af-5b232b91fddb",
+    "accountId": "239778916773",
+    "data": {
+      "actionConfiguration": {
+        "configuration": {
+          "FunctionName": "sonar-scan-lambda-stack-MyFunction-1KOUH1V8G31HY",
+          "UserParameters": "sonar.url=http://blahblah/"
+        }
+      },
+      "inputArtifacts": [
+        {
+          "location": {
+            "s3Location": {
+              "bucketName": "gsd-922-spot-forecast-object-service-pipeline-artifacts",
+              "objectKey": "gsd-922-spot-forecas/ListObject/KoVcaKI"
+            },
+            "type": "S3"
+          },
+          "revision": null,
+          "name": "ListObjectBuild"
+        },
+        {
+          "location": {
+            "s3Location": {
+              "bucketName": "gsd-922-spot-forecast-object-service-pipeline-artifacts",
+              "objectKey": "gsd-922-spot-forecas/Source/zjDg40y.zip"
+            },
+            "type": "S3"
+          },
+          "revision": "7f298e55f77d6a693bfc08c15660fd3f71e9b013",
+          "name": "Source"
+        }
+      ],
+      "outputArtifacts": [],
+      "artifactCredentials": {
+        "secretAccessKey": "xxxxxxxxxxxxx",
+        "sessionToken": "AgoGb3JpZ2luEG0aCWV1LXdlc3QtMiKAAh+wEw9i6voKUTI/UoNNahV1dZEb7lJ/e4cbTiuogrwFhx+uhLKRQWLLQGnJni2lMMrLAmnDFmmeXS+OA8ki4Lk7kFmfaERYwgbxc1XgxO+LRjMHXpoIyGnelS63yoLg67HRlGt9488UXQOpSJnmlzSb66Wds0Re2e+MRUKIsVN07zmqe0IKokkXfZL//k2S3NGlyFnQfdkSSOcamQihvDt0IOsLgZpLyFdkS5njJO88DlbHDagcOpcDUlh5IusdhWmZEKAS1XuZ8UWS0AZZhbiHifT2siLSSrAC+V9ek1fDmCe7k6W84ne/01VV3kVJzv/UT0hMBEw+BZqRrNcVGaEqsgUIdhAAGgwyMzk3Nzg5MTY3NzMiDJ7NWOSH7yfp7assDiqPBcSoVc93+sXmIr1OQU+TXb3nS7bsAf0yNbe8IMnu2mfsFiegNljV/QX8N9J2tdKjLDLYmJRMfXbdOZUqCspzHr5ut0gA4roV/26+RnPqr/Ub0Bj2wMKU7cSGeVog+LXAsgKNf6ntDR4z2L9Rynhta4tBvr/j787MYdqRxKwxp5yjGIv7bXi4w2rfAeKmSDc2HAB3munO/3uFqMywVELWiSIhGB6BghPgyORzNQky2uzaLUt9P/3oottVnU7YzQMMdcxlPfhkHA5TehYkcw33JulF9lD1KVQU/At+nlUExk9BoKWUJk1tkzy1N4yBJBTbcr+Af1OfvLj2vvH5LL2RFC5JTn6ozbDcmc49G4Dy82c0aABCIq0a8RnWA8N//AdsjG6zJuU0iRk0C1Cg8bo0Qwn6IjpVmeK6ZxP245TjJ9QtYyP6z5P6fRujiwCQ1CJkXAbCKdilMEKzmX0TSiqlw0ALBEWcWSGtvE44z1FJ46LAOVmgu1vVWzmLa1iBnXQ1z3fw7vAV0iKfdg+h3RxMaL/aEe1lqseRwbuoE4wgaEPZWH8p+669IDIaHOygzK6wxUdPYME885/9zu07+cIa+GEvlKGHoWc1JOYMOL/GETeAU4iK/+AaAxBWOMNa55uw5B0A/ZPfOIO4KYKnB0+Yo6wyRvyRioPWkQ5+6xzTADoqFBs2iOzw9yOwIjXmKiKzsJ/LesaGQ/sf8LttnrKC6n+VqhvkMy3EZZ2QtCrnqUY12Bk3ULAzgvW1RmBJkOFzm0/aqvsDlJb74haDctcyeRkNczqtGHemCuFKuuMJ19MqLup4D2im8S28evsYxfP/px8Iz29Dn56Cjr6zgf1rvf6Lp1CoZu57ZaTv8PrhfXEw67OB0AU=",
+        "accessKeyId": "xxxxxxxxxxxxx"
+      }
+    }
+  }
+}
