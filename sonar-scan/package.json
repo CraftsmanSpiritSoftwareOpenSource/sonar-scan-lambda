@@ -1,0 +1,19 @@
+{
+  "name": "sonar-scan-lambda",
+  "version": "1.0.0",
+  "description": "AWS lambda to be invoked in an AWS Codepipeline that will perform a sonaqube scan on input aretefacts\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[\u001b[3~\u001b[3~\u001b[3~\u001b[3~\u001b[3~\u001b[3~tefacts",
+  "main": "src/sonarScanLambda.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CraftsmanSpiritSoftwareOpenSource/sonar-scan-lambda.git"
+  },
+  "author": "CraftsmanSpiritOpenSource",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/CraftsmanSpiritSoftwareOpenSource/sonar-scan-lambda/issues"
+  },
+  "homepage": "https://github.com/CraftsmanSpiritSoftwareOpenSource/sonar-scan-lambda#readme"
+}
