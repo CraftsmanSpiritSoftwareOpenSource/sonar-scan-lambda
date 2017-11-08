@@ -12,12 +12,14 @@ describe('sonar-scan event handler', function () {
     });
 
     it("should should throw an error if the event is not a code pipeline event", function () {
-        expect(
-            eventHandler.handler.bind(eventHandler.handler,
-                {"blah": "blah blah"},
-                ()=>{},
-                (err, data)=>{}
-            )
-        ).to.throw('Trigger event must be a code pipeline event');
+        eventHandler.handler(
+            {"blah": "blah blah"},
+            undefined,
+            (err, data)=>{
+                expect(err).to.be.an('error');
+                expect(err.message).to.equal('Trigger event must be a code pipeline event');
+                expect(data).to.be.a('null');
+            }
+        )
     });
 });
