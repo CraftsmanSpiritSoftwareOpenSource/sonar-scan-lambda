@@ -2,7 +2,7 @@
   "name": "sonar-scan-lambda",
   "version": "1.0.0",
   "description": "AWS lambda to be invoked in an AWS Codepipeline that will perform a sonaqube scan on input aretefacts\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[\u001b[3~\u001b[3~\u001b[3~\u001b[3~\u001b[3~\u001b[3~tefacts",
-  "main": "src/sonarScanLambda.js",
+  "main": "src/handler/sonarScanLambda.js",
   "scripts": {
     "test": "istanbul cover --report lcovonly node_modules/mocha/bin/_mocha ./src/**/*test.js"
   },
@@ -20,5 +20,11 @@
     "chai": "^4.1.2",
     "istanbul": "^0.4.5",
     "mocha": "^4.0.1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.148.0",
+    "bufferedstream": "^3.1.1",
+    "fs-readdir-recursive": "^1.0.0",
+    "unzip": "^0.1.11"
   }
 }

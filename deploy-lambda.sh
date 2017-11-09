@@ -5,7 +5,7 @@ cd ../
 
 aws cloudformation package \
   --template-file iac_config/template.yaml \
-  --s3-bucket sonar-scan-lambda-code \
+  --s3-bucket met-sonar-scan-lambda-code \
   --output-template-file iac_config/packaged-template.yaml
 
 aws cloudformation deploy \

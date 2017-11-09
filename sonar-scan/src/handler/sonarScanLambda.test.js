@@ -16,7 +16,12 @@ describe('sonar-scan event handler', function () {
         it("will set error on callback if json event is not correct", function(){
             eventHandler.handler(
                 {"blah": "blah blah"},
-                undefined,
+                {
+                    fail: (err)=>{
+                        expect(err).to.be.an('error');
+                        expect(err.message).to.equal('Trigger event must be a code pipeline event');
+                    }
+                },
                 (err, data)=>{
                     expect(err).to.be.an('error');
                     expect(err.message).to.equal('Trigger event must be a code pipeline event');
@@ -28,7 +33,12 @@ describe('sonar-scan event handler', function () {
         it("will set error on callback if event is null", function(){
             eventHandler.handler(
                 null,
-                undefined,
+                {
+                    fail: (err)=>{
+                        expect(err).to.be.an('error');
+                        expect(err.message).to.equal('event can not be null');
+                    }
+                },
                 (err, data)=>{
                     expect(err).to.be.an('error');
                     expect(err.message).to.equal('event can not be null');
@@ -40,7 +50,12 @@ describe('sonar-scan event handler', function () {
         it("will set error on callback if event is undefined", function(){
             eventHandler.handler(
                 undefined,
-                undefined,
+                {
+                    fail: (err)=>{
+                        expect(err).to.be.an('error');
+                        expect(err.message).to.equal('event can not be undefined');
+                    }
+                },
                 (err, data)=>{
                     expect(err).to.be.an('error');
                     expect(err.message).to.equal('event can not be undefined');

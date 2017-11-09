@@ -1,9 +1,27 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  MyFunction:
+  SonarScanLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/sonarScanLambda.handler
+      Handler: src/handler/sonarScanLambda.handler
       Runtime: nodejs6.10
       CodeUri: ../sonar-scan
+      Policies:
+        - Version: '2012-10-17' # Policy Document
+          Statement:
+          - Action:
+              - s3:*
+            Effect: Allow
+            Resource: arn:aws:s3:::*
+          - Action:
+              - logs:*
+            Effect: Allow
+            Resource: arn:aws:logs:*:*:*
+          - Action:
+              - codepipeline:PutJobSuccessResult
+              - codepipeline:PutJobFailureResult
+            Effect: Allow
+            Resource: "*"
+      Timeout: 300
+      MemorySize: 1024
