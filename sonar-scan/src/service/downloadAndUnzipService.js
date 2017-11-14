@@ -4,8 +4,31 @@ const unzip = require('unzip');
 const BufferedStream = require('bufferedstream');
 const fs = require('fs');
 
+let cleanDir = (dirPath, removeSelf) => {
+    let files = fs.readdirSync(dirPath);
+
+    files.forEach((file)=>{
+        "use strict";
+        let filePath = dirPath + '/' + file;
+        if (fs.statSync(filePath).isFile()) {
+            fs.unlinkSync(filePath);
+        }
+        else {
+            cleanDir(filePath, true);
+        }
+    });
+    if (removeSelf) {
+        fs.rmdirSync(dirPath);
+    }
+
+};
+
 module.exports = (event, path)=>{
     "use strict";
+
+    console.log("clean up path: " + path);
+    cleanDir(path);
+
     console.log("setting up downloads");
     const inputArtifacts = event["CodePipeline.job"].data.inputArtifacts;
     const artifactCredentials = event["CodePipeline.job"].data.artifactCredentials;

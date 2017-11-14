@@ -19,8 +19,6 @@ const validateEvent = (event, callback) => {
 
 const handleScan = (event, callback) => {
     "use strict";
-    //todo clean out tmp dir
-
     console.log("set up download");
     const downloadService = DownloadAndUnzipService(event,'/tmp');
     downloadService
@@ -68,23 +66,22 @@ exports.handler = function(event, context, callback) {
 
     try {
         validateEvent(event, (err)=>{
-            try{
-                "use strict";
-                if (err){
-                    return callback(err, null);
-                }
-                let jobId = event["CodePipeline.job"].id;
+            "use strict";
+            if (err){
+                return callback(err, null);
+            }
+            let jobId = event["CodePipeline.job"].id;
+            try {
 
-                handleScan(event, (err, data)=>{
+                handleScan(event, (err, data) => {
                     console.log("handle scan finished:");
-                    if (err){
-                        return putJobFailure(jobId,err);
+                    if (err) {
+                        return putJobFailure(jobId, err);
                     }
                     return putJobSuccess(jobId, data);
                 });
             } catch (err) {
-                return putJobFailure(jobId,err);
-
+                return putJobFailure(jobId, err);
             }
         });
 
