@@ -2,7 +2,6 @@
 const mockery = require('mockery');
 const sinon = require('sinon');
 const chai = require('chai'), expect = chai.expect;
-const AWS = require('aws-sdk');
 
 
 describe('sonar-scan event handler', () => {
@@ -54,7 +53,7 @@ describe('sonar-scan event handler', () => {
 
     });
 
-    describe('should download report job failure if download and unzip fail', () => {
+    describe('should report job failure if download service fails', () => {
         let pipelineApi = {
             putJobFailureResult: (param,callback)=>{}
         };
@@ -115,5 +114,40 @@ describe('sonar-scan event handler', () => {
                 }
             );
         });
+
+        it('will report an error when download or unzip process fails', (done) =>{
+            let event = {
+                "CodePipeline.job": {
+                    "id": "10a89910-ef83-473e-a3af-5b232b91fddb"
+                }
+            };
+
+            stubServiceConstructor.withArgs(event).returns(downloadServiceApi);
+            stubAwsCodePipelineConstructor.returns(pipelineApi);
+            //make this a stub?
+            mockDownloadAndUnzipService.expects('downloadAndUnzip').once().returns(
+                new Promise((resolve, reject)=>{
+                    return reject(new Error('download or unzip error'))
+                })
+            );
+            mockAwsCodePipelineSdk.expects('putJobFailureResult').once().yields(undefined);
+
+            eventHandler.handler(
+                event,
+                sinon.stub(),
+                (err, data)=>{
+                    expect(err).to.be.an('error');
+                    expect(err.message).to.equal('download or unzip error');
+                    expect(data).to.be.a('null');
+                    mockDownloadAndUnzipService.verify();
+                    mockAwsCodePipelineSdk.verify();
+                    done();
+                }
+            );
+        });
     });
+
+    describe('should report error if sonar scan service fails',()=>{
+
+    })
 });
