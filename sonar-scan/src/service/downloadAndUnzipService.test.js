@@ -105,7 +105,20 @@ describe('download and unzip service', () => {
             });
         });
     });
-    describe('',()=>{
+    describe('#downloadAndZip',()=>{
+        describe('error paths', () =>{
+            it('should return an error if getObject fails',()=>{
 
+            });
+            it('should return an error if lambdaService extract fails', ()=>{
+
+            });
+            it('should return an error if first download succeeds and second download fails',()=>{
+
+            });
+        });
+        it('should extract the downloaded data',()=>{
+
+        });
     })
 });
