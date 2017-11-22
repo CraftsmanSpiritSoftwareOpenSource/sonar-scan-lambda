@@ -105,7 +105,7 @@ describe('download and unzip service', () => {
             });
         });
     });
-    describe('#downloadAndZip',()=>{
+    describe('#downloadAndUnzip',()=>{
         describe('error paths', () =>{
             it('should return an error if getObject fails',()=>{
 
