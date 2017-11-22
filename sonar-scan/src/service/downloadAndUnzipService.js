@@ -1,33 +1,14 @@
 const AWS = require('aws-sdk');
 
-const unzip = require('unzip');
 const BufferedStream = require('bufferedstream');
-const fs = require('fs');
-
-let cleanDir = (dirPath, removeSelf) => {
-    let files = fs.readdirSync(dirPath);
-
-    files.forEach((file)=>{
-        "use strict";
-        let filePath = dirPath + '/' + file;
-        if (fs.statSync(filePath).isFile()) {
-            fs.unlinkSync(filePath);
-        }
-        else {
-            cleanDir(filePath, true);
-        }
-    });
-    if (removeSelf) {
-        fs.rmdirSync(dirPath);
-    }
-
-};
+const LambdaFileService = require('./lambdaFileService');
 
 module.exports = (event, path)=>{
     "use strict";
 
     console.log("clean up path: " + path);
-    cleanDir(path);
+    const lambdaFileService = LambdaFileService(path);
+    lambdaFileService.clean();
 
     console.log("setting up downloads");
     const inputArtifacts = event["CodePipeline.job"].data.inputArtifacts;
@@ -46,12 +27,6 @@ module.exports = (event, path)=>{
             let downloads = inputArtifacts.map((artifact)=>{
                 return new Promise((resolve, reject)=>{
                     console.log("downloading " +  artifact.name);
-                    let output_path = path + "/" + artifact.name;
-                    if (!fs.existsSync(output_path)){
-                        fs.mkdirSync(output_path);
-                    }
-
-                    console.log("created " +  output_path);
 
                     let params = {
                         Bucket: artifact.location.s3Location.bucketName,
@@ -66,7 +41,7 @@ module.exports = (event, path)=>{
                         }
 
                         new BufferedStream(data.Body)
-                            .pipe(unzip.Extract({path: output_path}))
+                            .pipe(lambdaFileService.extract(artifact.name))
                             .on('error', (err)=>{
                                 console.log("error downloading " +  artifact.name);
                                 reject(err);

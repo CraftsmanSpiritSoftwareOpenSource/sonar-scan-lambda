@@ -7,11 +7,22 @@ const chai = require('chai'), expect = chai.expect;
 describe('download and unzip service', () => {
     describe('#construction', ()=>{
 
-        const fsApi = {
-            readdirSync: ()=>{}
+        const lambdaFileServiceApi = {
+            clean: ()=>{},
+            extract: (artifact_name)=>{}
         };
 
-        let mockFs;
+
+        let awsApi;
+
+        const awsS3Api = {};
+
+        let mockFsService;
+        let mockS3Api;
+
+        let awsConfig = {
+            s3: undefined
+        };
 
         let downloadAndUnzipService;
 
@@ -22,8 +33,18 @@ describe('download and unzip service', () => {
                 useCleanCache: true
             });
 
-            mockFs = sinon.mock(fsApi);
-            mockery.registerMock('fs', fsApi);
+            mockFsService = sinon.mock(lambdaFileServiceApi);
+            mockery.registerMock('./lambdaFileService', ()=>{
+                return lambdaFileServiceApi;
+            });
+
+            awsApi = {
+                S3: sinon.stub().returns(awsS3Api),
+                config: awsConfig
+            };
+
+            mockS3Api = sinon.mock(awsS3Api);
+            mockery.registerMock('aws-sdk', awsApi);
 
             downloadAndUnzipService = require('./downloadAndUnzipService');
         });
@@ -66,12 +87,25 @@ describe('download and unzip service', () => {
             };
 
             it('cleans up path directory',()=>{
-                //todo check recursion and other branches
-                mockFs.expects('readdirSync').once().returns([]);
+                mockFsService.expects('clean').once();
                 downloadAndUnzipService(event, 'testPath');
-                mockFs.verify();
+                mockFsService.verify();
+            });
+
+            it('sets the aws s3 config', ()=>{
+                downloadAndUnzipService(event, 'testPath');
+                expect(awsConfig.s3).to.deep.equal({
+                    params:{
+                        secretAccessKey: "secret key",
+                        sessionToken: "session token",
+                        accessKeyId: "access id",
+                        signatureVersion: 's3v4'
+                    }
+                })
             });
         });
-
     });
+    describe('',()=>{
+
+    })
 });
