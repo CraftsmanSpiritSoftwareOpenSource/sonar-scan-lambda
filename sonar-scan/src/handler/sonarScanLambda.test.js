@@ -58,10 +58,10 @@ describe('sonar-scan event handler', () => {
             putJobFailureResult: (param,callback)=>{}
         };
         let downloadServiceApi = {
-            downloadAndUnzip: () => {}
+            download: () => {}
         };
-        let stubServiceConstructor;
-        let mockDownloadAndUnzipService;
+        let stubDownloadServiceConstructor;
+        let mockDownloadService;
         let stubAwsCodePipelineConstructor;
         let mockAwsCodePipelineSdk;
         let eventHandler;
@@ -73,13 +73,13 @@ describe('sonar-scan event handler', () => {
                 useCleanCache: true
             });
 
-            mockDownloadAndUnzipService = sinon.mock(downloadServiceApi);
-            stubServiceConstructor = sinon.stub();
+            mockDownloadService = sinon.mock(downloadServiceApi);
+            stubDownloadServiceConstructor = sinon.stub();
 
             mockAwsCodePipelineSdk = sinon.mock(pipelineApi);
             stubAwsCodePipelineConstructor = sinon.stub();
 
-            mockery.registerMock('../service/downloadAndUnzipService',stubServiceConstructor);
+            mockery.registerMock('../service/downloadService',stubDownloadServiceConstructor);
             mockery.registerMock('aws-sdk',{
                 CodePipeline: stubAwsCodePipelineConstructor
             });
@@ -91,14 +91,14 @@ describe('sonar-scan event handler', () => {
             mockery.disable();
         });
 
-        it('will report an error when download and zip service construction fails', (done) => {
+        it('will report an error when download service construction fails', (done) => {
             let event = {
                 "CodePipeline.job": {
                     "id": "10a89910-ef83-473e-a3af-5b232b91fddb"
                 }
             };
 
-            stubServiceConstructor.withArgs(event).throws(new Error('Service construction error'));
+            stubDownloadServiceConstructor.withArgs(event).throws(new Error('Service construction error'));
             stubAwsCodePipelineConstructor.returns(pipelineApi);
             mockAwsCodePipelineSdk.expects('putJobFailureResult').once().yields(undefined);
 
@@ -115,19 +115,19 @@ describe('sonar-scan event handler', () => {
             );
         });
 
-        it('will report an error when download or unzip process fails', (done) =>{
+        it('will report an error when download process fails', (done) =>{
             let event = {
                 "CodePipeline.job": {
                     "id": "10a89910-ef83-473e-a3af-5b232b91fddb"
                 }
             };
 
-            stubServiceConstructor.withArgs(event).returns(downloadServiceApi);
+            stubDownloadServiceConstructor.withArgs(event).returns(downloadServiceApi);
             stubAwsCodePipelineConstructor.returns(pipelineApi);
             //make this a stub?
-            mockDownloadAndUnzipService.expects('downloadAndUnzip').once().returns(
+            mockDownloadService.expects('download').once().returns(
                 new Promise((resolve, reject)=>{
-                    return reject(new Error('download or unzip error'))
+                    return reject(new Error('download error'))
                 })
             );
             mockAwsCodePipelineSdk.expects('putJobFailureResult').once().yields(undefined);
@@ -137,9 +137,9 @@ describe('sonar-scan event handler', () => {
                 sinon.stub(),
                 (err, data)=>{
                     expect(err).to.be.an('error');
-                    expect(err.message).to.equal('download or unzip error');
+                    expect(err.message).to.equal('download error');
                     expect(data).to.be.a('null');
-                    mockDownloadAndUnzipService.verify();
+                    mockDownloadService.verify();
                     mockAwsCodePipelineSdk.verify();
                     done();
                 }

@@ -4,7 +4,7 @@ const sinon = require('sinon');
 const chai = require('chai'), expect = chai.expect;
 
 
-describe('download and unzip service', () => {
+describe('download service', () => {
     const event = {
         "CodePipeline.job": {
             "data": {
@@ -41,11 +41,6 @@ describe('download and unzip service', () => {
         }
     };
 
-    const lambdaFileServiceApi = {
-        clean: ()=>{},
-        extract: (artifact_name)=>{}
-    };
-
 
     let awsApi;
 
@@ -53,25 +48,19 @@ describe('download and unzip service', () => {
         getObject: (params, callback)=>{}
     };
 
-    let mockFsService;
     let mockS3Api;
 
     let awsConfig = {
         s3: undefined
     };
 
-    let downloadAndUnzipService;
+    let downloadService;
 
     beforeEach(()=>{
         mockery.enable({
-            warnOnReplace: true,
+            warnOnReplace: false,
             warnOnUnregistered: false,
             useCleanCache: true
-        });
-
-        mockFsService = sinon.mock(lambdaFileServiceApi);
-        mockery.registerMock('./lambdaFileService', ()=>{
-            return lambdaFileServiceApi;
         });
 
         awsApi = {
@@ -82,21 +71,19 @@ describe('download and unzip service', () => {
         mockS3Api = sinon.mock(awsS3Api);
         mockery.registerMock('aws-sdk', awsApi);
 
-        downloadAndUnzipService = require('./downloadAndUnzipService');
+        downloadService = require('./downloadService');
+    });
+
+    afterEach(() => {
+        mockery.deregisterAll();
+        mockery.disable();
     });
 
     describe('#construction', ()=>{
         describe('with valid event',()=>{
 
-
-            it('cleans up path directory',()=>{
-                mockFsService.expects('clean').once();
-                downloadAndUnzipService(event, 'testPath');
-                mockFsService.verify();
-            });
-
             it('sets the aws s3 config', ()=>{
-                downloadAndUnzipService(event, 'testPath');
+                downloadService(event);
                 expect(awsConfig.s3).to.deep.equal({
                     params:{
                         secretAccessKey: "secret key",
@@ -108,24 +95,25 @@ describe('download and unzip service', () => {
             });
         });
     });
-    describe('#downloadAndUnzip',()=>{
-        describe('error paths', () =>{
-            const EventEmitter = require('events');
-            let service;
+    describe('#download',()=>{
+        let service;
 
-            beforeEach(()=>{
-                service = downloadAndUnzipService(event, 'testPath');
-            });
+        beforeEach(()=>{
+            service = downloadService(event);
+        });
+        describe('error paths', () =>{
+            // const EventEmitter = require('events');
+
             it('should return an error if getObject fails',(done)=>{
                 mockS3Api.expects('getObject')
                     .twice()
                     .onFirstCall().yields(new Error("s3 get failed"))
                     .onSecondCall().yields(undefined, {Body: undefined});
 
-                service.downloadAndUnzip().then(
-                    (result)=>{
+                service.download().then(
+                    ()=>{
                         mockS3Api.verify();
-                        done(new Error("should fail"));
+                        done(new Error("should not be called"));
                     },
                     (err)=>{
                         expect(err).to.be.an('error');
@@ -133,38 +121,68 @@ describe('download and unzip service', () => {
                         done();
                     }
                 );
-                mockS3Api.verify();
             });
-            it('should return an error if lambdaService extract fails', (done)=>{
+            // it('should return an error if lambdaService extract fails', (done)=>{
+            //     mockS3Api.expects('getObject')
+            //         .twice()
+            //         .yields(undefined, {Body: "hello world"});
+            //
+            //     const emitter = new EventEmitter();
+            //
+            //     mockFsService.expects('extract').twice().returns(emitter);
+            //     service.downloadAndUnzip().then(
+            //         (result)=>{
+            //             mockS3Api.verify();
+            //             mockFsService.verify();
+            //             done(new Error("should fail"));
+            //         },
+            //         (err)=>{
+            //             expect(err).to.be.an('error');
+            //             expect(err.message).to.equal("failed write");
+            //             mockS3Api.verify();
+            //             mockFsService.verify();
+            //             done();
+            //         }
+            //     );
+            //     emitter.emit("error", new Error("failed write"));
+            // });
+            it('should return an error if first download succeeds and second download fails',(done)=>{
                 mockS3Api.expects('getObject')
                     .twice()
-                    .yields(undefined, {Body: "hello world"});
+                    .onFirstCall().yields(undefined, {Body: undefined})
+                    .onSecondCall().yields(new Error("s3 get failed"));
 
-                const emitter = new EventEmitter();
-
-                mockFsService.expects('extract').twice().returns(emitter);
-                service.downloadAndUnzip().then(
+                service.download().then(
                     (result)=>{
                         mockS3Api.verify();
-                        mockFsService.verify();
-                        done(new Error("should fail"));
+                        done(new Error("should not be called"));
                     },
                     (err)=>{
                         expect(err).to.be.an('error');
-                        expect(err.message).to.equal("failed write");
                         mockS3Api.verify();
-                        mockFsService.verify();
                         done();
                     }
                 );
-                emitter.emit("error", new Error("failed write"));
-            });
-            it('should return an error if first download succeeds and second download fails',()=>{
-
             });
         });
-        it('should extract the downloaded data',()=>{
+        it('should return the download data stream',(done)=>{
+            mockS3Api.expects('getObject')
+                .twice()
+                .onFirstCall().yields(undefined, {Body: "firstCall"})
+                .onSecondCall().yields(undefined, {Body: "secondCall"});
 
+            service.download().then(
+                (result)=>{
+                    expect(result).to.deep.include({name:"ListObjectBuild", data: "firstCall"});
+                    expect(result).to.deep.include({name:"Source", data: "secondCall"});
+                    mockS3Api.verify();
+                    done();
+                },
+                (err)=>{
+                    mockS3Api.verify();
+                    done(new Error("should not be called"));
+                }
+            );
         });
     })
 });

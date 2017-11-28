@@ -1,4 +1,5 @@
-const DownloadAndUnzipService = require('../service/downloadAndUnzipService');
+const DownloadService = require('../service/downloadService');
+const UnzipService = require('../service/unzipService');
 
 const read = require('fs-readdir-recursive');
 const AWS = require('aws-sdk');
@@ -20,13 +21,20 @@ const validateEvent = (event, callback) => {
 const handleScan = (event, callback) => {
     "use strict";
     console.log("set up download");
-    const downloadService = DownloadAndUnzipService(event,'/tmp');
-    downloadService
-        .downloadAndUnzip()
-        .then(()=>{
-            console.log("event = %j", event);
-            console.log(read('/tmp'));
-            return callback(null, "logged the event");
+
+    DownloadService(event)
+        .download()
+        .then((values)=>{
+            UnzipService('\tmp').unzip(values)
+                .then(()=>{
+                    console.log("event = %j", event);
+                    console.log(read('/tmp'));
+                    //todo run the scan
+                    return callback(null, "logged the event");
+                }, (err)=>{
+                    return callback(err, null);
+                }
+            );
         }, (err)=>{
             return callback(err, null);
         });

@@ -1,6 +1,4 @@
 const fs = require('fs');
-const unzip = require('unzip');
-const BufferedStream = require('bufferedstream');
 
 const cleanDir = (dirPath, removeSelf) => {
     let files = fs.readdirSync(dirPath);
@@ -33,11 +31,10 @@ module.exports = (path) => {
         clean (){
             cleanDir(path);
         },
-        extract(artifact_name, data){
+        createPathForArtifact(artifact_name){
             let output_path = path + "/" + artifact_name;
             createIfNotExists(output_path);
-            return new BufferedStream(data.Body)
-                .pipe(unzip.Extract({path: output_path})) ;
+            return output_path
         }
     };
 };

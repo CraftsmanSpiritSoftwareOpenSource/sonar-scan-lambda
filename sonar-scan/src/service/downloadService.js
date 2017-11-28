@@ -1,14 +1,10 @@
 const AWS = require('aws-sdk');
 
 
-const LambdaFileService = require('./lambdaFileService');
+// const LambdaFileService = require('./lambdaFileService');
 
-module.exports = (event, path)=>{
+module.exports = (event)=>{
     "use strict";
-
-    console.log("clean up path: " + path);
-    const lambdaFileService = LambdaFileService(path);
-    lambdaFileService.clean();
 
     console.log("setting up downloads");
     const inputArtifacts = event["CodePipeline.job"].data.inputArtifacts;
@@ -23,8 +19,8 @@ module.exports = (event, path)=>{
     };
     const s3 = new AWS.S3();
     return {
-        downloadAndUnzip(){
-            let downloads = inputArtifacts.map((artifact)=>{
+        download(){
+            const downloads = inputArtifacts.map((artifact)=>{
                 return new Promise((resolve, reject)=>{
                     console.log("downloading " +  artifact.name);
 
@@ -39,16 +35,7 @@ module.exports = (event, path)=>{
                            console.error(err.code, "-", err.message);
                            return reject(err);
                         }
-
-                        lambdaFileService.extract(artifact.name, data)
-                            .on('error', (err)=>{
-                                console.log("error downloading " +  artifact.name);
-                                reject(err);
-                            })
-                            .on('close', ()=>{
-                                console.log("finished downloading " +  artifact.name);
-                                resolve();
-                            });
+                        resolve({name: artifact.name, data: data.Body});
                    });
                 });
             });
