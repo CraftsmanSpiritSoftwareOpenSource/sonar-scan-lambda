@@ -6,6 +6,7 @@ const chai = require('chai'), expect = chai.expect;
 describe('unzip service', ()=>{
     const lambdaFileServiceApi = {
         clean: ()=>{},
+        createPathForArtifact: (artifact_name)=>{}
     };
 
     let mockFsService;
@@ -37,5 +38,26 @@ describe('unzip service', ()=>{
             unzipService('testPath');
             mockFsService.verify();
         });
+    });
+
+    describe('#unzip',()=>{
+        let serviceInstance;
+        beforeEach(()=>{
+            serviceInstance = unzipService('testPath');
+        });
+        describe('error paths', ()=>{
+            it('should return an error if createPathForArtifact throws an exception', (done)=>{
+                mockFsService.expects('createPathForArtifact').once().throws(new Error('create path error'));
+                serviceInstance.unzip([{name: "test", data: undefined}])
+                    .then(()=>{
+                        done(new Error('should not be called'))
+                    }, (err)=>{
+                        expect(err).to.be.an('error');
+                        expect(err.message).to.equal('create path error');
+                        mockFsService.verify();
+                        done();
+                    });
+            });
+       });
     });
 });
