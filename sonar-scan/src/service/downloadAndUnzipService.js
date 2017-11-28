@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 
-const BufferedStream = require('bufferedstream');
+
 const LambdaFileService = require('./lambdaFileService');
 
 module.exports = (event, path)=>{
@@ -40,8 +40,7 @@ module.exports = (event, path)=>{
                            return reject(err);
                         }
 
-                        new BufferedStream(data.Body)
-                            .pipe(lambdaFileService.extract(artifact.name))
+                        lambdaFileService.extract(artifact.name, data)
                             .on('error', (err)=>{
                                 console.log("error downloading " +  artifact.name);
                                 reject(err);
