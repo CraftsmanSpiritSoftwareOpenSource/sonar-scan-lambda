@@ -1,4 +1,5 @@
 const fs = require('fs');
+const fspath = require('path');
 
 const cleanDir = (dirPath, removeSelf) => {
     let files = fs.readdirSync(dirPath);
@@ -32,7 +33,7 @@ module.exports = (path) => {
             cleanDir(path);
         },
         createPathForArtifact(artifact_name){
-            let output_path = path + "/" + artifact_name;
+            let output_path = fspath.join(path,artifact_name);
             createIfNotExists(output_path);
             return output_path
         }

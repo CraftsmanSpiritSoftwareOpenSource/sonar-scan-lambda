@@ -3,6 +3,7 @@ const UnzipService = require('../service/unzipService');
 
 const read = require('fs-readdir-recursive');
 const AWS = require('aws-sdk');
+const os = require('os');
 
 const validateEvent = (event, callback) => {
 
@@ -25,16 +26,22 @@ const handleScan = (event, callback) => {
     DownloadService(event)
         .download()
         .then((values)=>{
-            UnzipService('\tmp').unzip(values)
-                .then(()=>{
-                    console.log("event = %j", event);
-                    console.log(read('/tmp'));
-                    //todo run the scan
-                    return callback(null, "logged the event");
-                }, (err)=>{
-                    return callback(err, null);
-                }
-            );
+            const tmpPath = os.tmpdir();
+            try{
+                UnzipService(tmpPath)
+                    .unzip(values)
+                    .then(()=>{
+                        console.log("event = %j", event);
+                        console.log(read(tmpPath));
+                        //todo run the scan
+                        return callback(null, "logged the event");
+                    }, (err)=>{
+                        return callback(err, null);
+                    }
+                );
+            } catch (err) {
+                return callback(err, null);
+            }
         }, (err)=>{
             return callback(err, null);
         });
