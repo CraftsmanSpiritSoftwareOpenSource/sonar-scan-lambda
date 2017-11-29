@@ -79,29 +79,24 @@ exports.handler = function(event, context, callback) {
         });
     };
 
-    try {
-        validateEvent(event, (err)=>{
-            "use strict";
-            if (err){
-                return callback(err, null);
-            }
-            let jobId = event["CodePipeline.job"].id;
-            try {
 
-                handleScan(event, (err, data) => {
-                    console.log("handle scan finished:");
-                    if (err) {
-                        return putJobFailure(jobId, err);
-                    }
-                    return putJobSuccess(jobId, data);
-                });
-            } catch (err) {
-                return putJobFailure(jobId, err);
-            }
-        });
+    validateEvent(event, (err)=>{
+        "use strict";
+        if (err){
+            return callback(err, null);
+        }
+        let jobId = event["CodePipeline.job"].id;
+        try {
 
-    } catch (err) {
-        console.error(err);
-        return callback(err, null);
-    }
+            handleScan(event, (err, data) => {
+                console.log("handle scan finished:");
+                if (err) {
+                    return putJobFailure(jobId, err);
+                }
+                return putJobSuccess(jobId, data);
+            });
+        } catch (err) {
+            return putJobFailure(jobId, err);
+        }
+    });
 };
