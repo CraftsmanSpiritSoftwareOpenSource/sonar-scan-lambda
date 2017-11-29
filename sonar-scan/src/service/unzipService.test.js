@@ -11,6 +11,12 @@ describe('unzip service', ()=>{
 
     let mockFsService;
 
+    const unzipApi = {
+        Extract: ()=>{}
+    };
+
+    let mockUnzip;
+
     let unzipService;
     beforeEach(()=>{
         mockery.enable({
@@ -23,6 +29,9 @@ describe('unzip service', ()=>{
         mockery.registerMock('./lambdaFileService', ()=>{
             return lambdaFileServiceApi;
         });
+
+        mockUnzip = sinon.mock(unzipApi);
+        mockery.registerMock('unzip', unzipApi);
 
         unzipService = require('./unzipService');
     });
@@ -58,6 +67,44 @@ describe('unzip service', ()=>{
                         done();
                     });
             });
-       });
+            it('should return an error if there is a write stream error', (done)=>{
+                const EventEmitter = require('events');
+                const emitter = new EventEmitter();
+
+                mockFsService.expects('createPathForArtifact').once().returns("testPath/test");
+
+                mockUnzip.expects('Extract').withArgs({path: "testPath/test"}).returns(emitter);
+
+                serviceInstance.unzip([{name: "test", data: "string"}])
+                    .then(()=>{
+                        done(new Error('should not be called'))
+                    }, (err)=>{
+                        expect(err).to.be.an('error');
+                        expect(err.message).to.equal('write stream error');
+                        mockUnzip.verify();
+                        mockFsService.verify();
+                        done();
+                    });
+                emitter.emit('error', new Error('write stream error'));
+            });
+        });
+        it('should report success if unzip succeeds', (done)=>{
+            const EventEmitter = require('events');
+            const emitter = new EventEmitter();
+
+            mockFsService.expects('createPathForArtifact').once().returns("testPath/test");
+            mockUnzip.expects('Extract').withArgs({path: "testPath/test"}).returns(emitter);
+
+            serviceInstance.unzip([{name: "test", data: "string"}])
+                .then(()=>{
+                    mockUnzip.verify();
+                    mockFsService.verify();
+                    done();
+                }, (err)=>{
+                    console.error(err);
+                    done(new Error('should not be called'))
+                });
+            emitter.emit('close', 'success');
+        })
     });
 });
