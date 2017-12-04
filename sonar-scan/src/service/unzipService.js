@@ -21,7 +21,7 @@ module.exports = (path)=> {
                         })
                         .on('close', () => {
                             console.log("finished downloading " + archive.name);
-                            resolve();
+                            resolve(path_for_artifact);
                         });
                 });
             });

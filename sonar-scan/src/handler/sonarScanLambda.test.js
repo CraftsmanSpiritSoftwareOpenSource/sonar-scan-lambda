@@ -223,7 +223,7 @@ describe('sonar-scan event handler', () => {
                 stubUnzipServiceConstructor.withArgs(os.tmpdir()).returns(unzipServiceApi);
                 mockUnzipService.expects('unzip').once().withArgs([{name: "testArtifact", data: "test content"}]).returns(
                     new Promise((resolve)=>{
-                        return resolve();
+                        return resolve("testPath/testArtifact");
                     })
                 );
             });

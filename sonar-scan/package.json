@@ -4,7 +4,8 @@
   "description": "AWS lambda to be invoked in an AWS Codepipeline that will perform a sonaqube scan on input aretefacts\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[\u001b[3~\u001b[3~\u001b[3~\u001b[3~\u001b[3~\u001b[3~tefacts",
   "main": "src/handler/sonarScanLambda.js",
   "scripts": {
-    "test": "istanbul cover -x \"src/**/*test.js\" node_modules/mocha/bin/_mocha ./src/**/*test.js"
+    "test": "istanbul cover -x \"src/**/*test.js\" node_modules/mocha/bin/_mocha ./src/**/*test.js",
+    "scan": "sonar-scanner"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,9 @@
   "dependencies": {
     "aws-sdk": "^2.148.0",
     "bufferedstream": "^3.1.1",
+    "child-process": "^1.0.2",
     "fs-readdir-recursive": "^1.0.0",
+    "sonarqube-scanner": "^2.0.2",
     "unzip": "^0.1.11"
   }
 }

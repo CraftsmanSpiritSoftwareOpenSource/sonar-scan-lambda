@@ -35,7 +35,7 @@ module.exports = (path) => {
         createPathForArtifact(artifact_name){
             let output_path = fspath.join(path,artifact_name);
             createIfNotExists(output_path);
-            return output_path
+            return output_path.toString();
         }
     };
 };

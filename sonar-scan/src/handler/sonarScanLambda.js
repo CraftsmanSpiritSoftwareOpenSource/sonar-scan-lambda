@@ -1,5 +1,6 @@
 const DownloadService = require('../service/downloadService');
 const UnzipService = require('../service/unzipService');
+const SonarScanService = require('../service/sonarScanService');
 
 const read = require('fs-readdir-recursive');
 const AWS = require('aws-sdk');
@@ -30,15 +31,19 @@ const handleScan = (event, callback) => {
             try{
                 UnzipService(tmpPath)
                     .unzip(values)
-                    .then(()=>{
+                    .then((path_for_artifact)=>{
                         console.log("event = %j", event);
                         console.log(read(tmpPath));
                         //todo run the scan
-                        return callback(null, "logged the event");
+                        SonarScanService(path_for_artifact[0]).scan((err)=>{
+                            if (err) {
+                                return callback(err, null);
+                            }
+                            return callback(null, "performed scan");
+                        });
                     }, (err)=>{
                         return callback(err, null);
-                    }
-                );
+                    });
             } catch (err) {
                 return callback(err, null);
             }
